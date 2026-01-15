@@ -1,0 +1,49 @@
+{
+  "options": {
+    "paths": {
+      "root": "",
+      "fonts": "/data/fonts",
+      "sprites": "/data/sprites",
+      "icons": "/data/icons",
+      "styles": "/data/styles",
+      "mbtiles": "/data/mbtiles",
+      "pmtiles": "/data/pmtiles",
+      "files": "/data/files"
+    },
+    "domains": [
+      "192.168.31.186:8080",
+      "devapi.songluck.cn:8555"
+    ],
+    "formatOptions": {
+      "jpeg": {
+        "quality": 80
+      },
+      "webp": {
+        "quality": 90
+      }
+    },
+    "maxScaleFactor": 3,
+    "maxSize": 2048,
+    "pbfAlias": "pbf",
+    "serveAllFonts": true,
+    "serveAllStyles": true,
+    "serveStaticMaps": true,
+    "allowRemoteMarkerIcons": true,
+    "allowInlineMarkerImages": true,
+    "staticAttributionText": "© OpenMapTiles  © OpenStreetMaps",
+    "tileMargin": 0
+  },
+  "styles": {
+    "remote": {
+      "style": "https://demotiles.maplibre.org/style.json"
+    }
+  },
+  "data": {
+    "cloudtao.world": {
+      "mbtiles": "cloudtao.world.mbtiles"
+    },
+    "msn_street_world_0_12": {
+      "mbtiles": "msn_street_world_0_12.mbtiles"
+    }
+  }
+}

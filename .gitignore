@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+
+# Output
+output/
+
+# Temporary files
+tmp/
+tmpclaude-*/
+*.tmp
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+

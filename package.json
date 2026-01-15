@@ -1,0 +1,33 @@
+{
+  "name": "bing-map",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "download_msn_street_world": "node ./src/maptiles-downloader.mjs --type=msn_street_world",
+    "download_msn_street_china": "node ./src/maptiles-downloader.mjs --type=msn_street_china",
+    "download_msn_street_province": "node ./src/maptiles-downloader.mjs --type=msn_street_province",
+    "download_msn_shadow_world": "node ./src/maptiles-downloader.mjs --type=msn_shadow_world",
+    "download_msn_shadow_china": "node ./src/maptiles-downloader.mjs --type=msn_shadow_china",
+    "download_msn_shadow_province": "node ./src/maptiles-downloader.mjs --type=msn_shadow_province",
+    "download_tianditu_vec_w_world": "node ./src/maptiles-downloader.mjs --type=tianditu_vec_w_world",
+    "download_tianditu_vec_w_china": "node ./src/maptiles-downloader.mjs --type=tianditu_vec_w_china",
+    "download_tianditu_vec_w_province": "node ./src/maptiles-downloader.mjs --type=tianditu_vec_w_province",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "better-sqlite3": "^12.5.0",
+    "node-fetch": "^3.3.2",
+    "pngjs": "^7.0.0"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^6.7.3",
+    "eslint": "^9.39.1",
+    "eslint-plugin-format": "^1.1.0"
+  }
+}
