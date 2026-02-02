@@ -22,7 +22,7 @@ export default class Downloader {
     this.mbBatchSize = policy.downloaderOptions.mbBatchSize ?? 200
     this.delay = policy.downloaderOptions.delay ?? 50
     this.dynamicDelay = this.delay
-    this.minDelay = policy.downloaderOptions.minDelay ?? 50
+    this.minDelay = policy.downloaderOptions.minDelay ?? 10
     this.maxDelay = policy.downloaderOptions.maxDelay ?? 2000
     this.window = policy.downloaderOptions.window ?? 100
 
@@ -146,25 +146,26 @@ export default class Downloader {
 
   async downloadTile(z, x, y) {
     const u = this.policy.getTileUrl(z, x, y, Date.now())
+    // console.log('asdas', u)
     try {
       const r = await fetch(u, {
         headers: this.policy.requestHeaders
       })
       if (!r.ok) {
-        // console.log(`❌ ${z}/${x}/${y} HTTP ${r.status}`)
+        console.log(`❌ ${z}/${x}/${y} HTTP ${r.status}`)
         return null
       }
       const b = Buffer.from(await r.arrayBuffer())
 
       if (!this.policy.validateTile(b)) {
-        // console.log(`❌ ${z}/${x}/${y} invalid tile`)
+        console.log(`❌ ${z}/${x}/${y} invalid tile`)
         return null
       }
 
       return b
     }
     catch (err) {
-      // console.log(`❌ ${z}/${x}/${y} error: ${err.message}`)
+      console.log(`❌ ${z}/${x}/${y} error: ${err.message}`)
       return null
     }
   }

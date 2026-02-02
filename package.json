@@ -13,6 +13,9 @@
     "download_tianditu_vec_w_world": "node ./src/maptiles-downloader.mjs --type=tianditu_vec_w_world",
     "download_tianditu_vec_w_china": "node ./src/maptiles-downloader.mjs --type=tianditu_vec_w_china",
     "download_tianditu_vec_w_province": "node ./src/maptiles-downloader.mjs --type=tianditu_vec_w_province",
+    "download_tianditu_img_w_world": "node ./src/maptiles-downloader.mjs --type=tianditu_img_w_world",
+    "download_tianditu_img_w_china": "node ./src/maptiles-downloader.mjs --type=tianditu_img_w_china",
+    "download_tianditu_img_w_province": "node ./src/maptiles-downloader.mjs --type=tianditu_img_w_province",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "test": "echo \"Error: no test specified\" && exit 1"

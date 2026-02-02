@@ -1,7 +1,7 @@
 import process from 'node:process'
 import Downloader from './core/Downloader.mjs'
 import { msnShadowMapPolicyChina, msnShadowMapPolicyProvince, msnShadowMapPolicyWorld, msnStreetMapPolicyChina, msnStreetMapPolicyProvince, msnStreetMapPolicyWorld } from './policy/msn.mjs'
-import { tiandituVecPolicyChina, tiandituVecPolicyProvince, tiandituVecPolicyWorld } from './policy/tianditu.mjs'
+import { tiandituImgPolicyChina, tiandituImgPolicyProvince, tiandituImgPolicyWorld, tiandituVecPolicyChina, tiandituVecPolicyProvince, tiandituVecPolicyWorld } from './policy/tianditu.mjs'
 
 const checkOnly = process.argv.includes('--check-only')
 const repairOnly = process.argv.includes('--repair-only')
@@ -77,6 +77,24 @@ switch (args.type) {
   case 'tianditu_vec_w_province': {
     policys.push(...[
       tiandituVecPolicyProvince
+    ])
+    break
+  }
+  case 'tianditu_img_w_world': {
+    policys.push(...[
+      tiandituImgPolicyWorld
+    ])
+    break
+  }
+  case 'tianditu_img_w_china': {
+    policys.push(...[
+      tiandituImgPolicyChina
+    ])
+    break
+  }
+  case 'tianditu_img_w_province': {
+    policys.push(...[
+      tiandituImgPolicyProvince
     ])
     break
   }
