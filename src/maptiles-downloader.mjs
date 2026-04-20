@@ -1,5 +1,6 @@
 import process from 'node:process'
 import Downloader from './core/Downloader.mjs'
+import { amazonawsTerrariumPolicyChina, amazonawsTerrariumPolicyWorld } from './policy/amazonaws.mjs'
 import { msnShadowMapPolicyChina, msnShadowMapPolicyProvince, msnShadowMapPolicyWorld, msnStreetMapPolicyChina, msnStreetMapPolicyProvince, msnStreetMapPolicyWorld } from './policy/msn.mjs'
 import { tiandituImgPolicyChina, tiandituImgPolicyProvince, tiandituImgPolicyWorld, tiandituTerPolicyChina, tiandituTerPolicyProvince, tiandituTerPolicyWorld, tiandituVecPolicyChina, tiandituVecPolicyProvince, tiandituVecPolicyWorld } from './policy/tianditu.mjs'
 
@@ -113,6 +114,18 @@ switch (args.type) {
   case 'tianditu_ter_w_province': {
     policys.push(...[
       tiandituTerPolicyProvince
+    ])
+    break
+  }
+  case 'amazonaws_ter_world': {
+    policys.push(...[
+      amazonawsTerrariumPolicyWorld
+    ])
+    break
+  }
+  case 'amazonaws_ter_china': {
+    policys.push(...[
+      amazonawsTerrariumPolicyChina
     ])
     break
   }

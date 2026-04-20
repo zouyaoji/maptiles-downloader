@@ -19,6 +19,8 @@
     "download_tianditu_ter_w_world": "node ./src/maptiles-downloader.mjs --type=tianditu_ter_w_world",
     "download_tianditu_ter_w_china": "node ./src/maptiles-downloader.mjs --type=tianditu_ter_w_china",
     "download_tianditu_ter_w_province": "node ./src/maptiles-downloader.mjs --type=tianditu_ter_w_province",
+    "download_amazonaws_ter_world": "node ./src/maptiles-downloader.mjs --type=amazonaws_ter_world",
+    "download_amazonaws_ter_china": "node ./src/maptiles-downloader.mjs --type=amazonaws_ter_china",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "test": "echo \"Error: no test specified\" && exit 1"

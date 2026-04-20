@@ -411,7 +411,7 @@ export const tiandituImgPolicyWorld = {
  * China 维度
  */
 export const tiandituImgPolicyChina = {
-  name: 'Tianditu Image Map China (13-16)',
+  name: 'Tianditu Image Map China (13-14)',
   subdomains: ['t0', 't1', 't2', 't3', 't4', 't5', 't6', 't7'],
   // 👉 下载层级（强烈建议分批）
   levels: [
@@ -424,8 +424,8 @@ export const tiandituImgPolicyChina = {
 
   downloaderOptions: {
     mode: 'mbtiles',
-    mbtilesFile: './output/tianditu_img_w_china_13_16.mbtiles',
-    progressFile: './output/tianditu_img_w_china_13_16.progress.json',
+    mbtilesFile: './output/tianditu_img_w_china_13_14.mbtiles',
+    progressFile: './output/tianditu_img_w_china_13_14.progress.json',
     concurrency: 1, // ❗ 天地图必须单线程
     delay: 10, //
     maxRetry: 3,
@@ -495,7 +495,7 @@ export const tiandituImgPolicyChina = {
       name: this.name,
       format: 'png',
       minzoom: '13',
-      maxzoom: '16',
+      maxzoom: '14',
       bounds: '73,3,135,54',
       center: '104,30,13',
       type: 'baselayer',
@@ -512,7 +512,7 @@ export const tiandituImgPolicyChina = {
  * Province 维度
  */
 export const tiandituImgPolicyProvince = {
-  name: 'Tianditu Image Map Guangxi (17-18)',
+  name: 'Tianditu Image Map Guangxi (15-18)',
   subdomains: ['t0', 't1', 't2', 't3', 't4', 't5', 't6', 't7'],
   // 👉 下载层级（强烈建议分批）
   levels: [
@@ -520,13 +520,15 @@ export const tiandituImgPolicyProvince = {
     // { z: 13, bbox: [73, 3, 135, 54] },
     // { z: 14, bbox: [73, 3, 135, 54] } // 国家级重点 13-14
     { z: 15, bbox: [104, 20, 112.5, 26.5] },
-    { z: 16, bbox: [104, 20, 112.5, 26.5] } // 省级重点（广西） 15-16
+    { z: 16, bbox: [104, 20, 112.5, 26.5] },
+    { z: 17, bbox: [104, 20, 112.5, 26.5] },
+    { z: 18, bbox: [104, 20, 112.5, 26.5] } // 省级重点（广西） 15-18
   ],
 
   downloaderOptions: {
     mode: 'mbtiles',
-    mbtilesFile: './output/tianditu_img_w_china_17_18.mbtiles',
-    progressFile: './output/tianditu_img_w_china_17_18.progress.json',
+    mbtilesFile: './output/tianditu_img_w_guangxi_15_18.mbtiles',
+    progressFile: './output/tianditu_img_w_guangxi_15_18.progress.json',
     concurrency: 1, // ❗ 天地图必须单线程
     delay: 10, //
     maxRetry: 3,
@@ -595,10 +597,10 @@ export const tiandituImgPolicyProvince = {
     const meta = {
       name: this.name,
       format: 'png',
-      minzoom: '17',
+      minzoom: '15',
       maxzoom: '18',
       bounds: '104,20,112.5,26.5',
-      center: '108.3664,22.8177,17',
+      center: '108.3664,22.8177,15',
       type: 'baselayer',
       attribution: '© 天地图'
     }
@@ -818,7 +820,7 @@ export const tiandituTerPolicyChina = {
  * Province 维度
  */
 export const tiandituTerPolicyProvince = {
-  name: 'Tianditu Terrain Map Guangxi (17-18)',
+  name: 'Tianditu Terrain Map Guangxi (15-18)',
   subdomains: ['t0', 't1', 't2', 't3', 't4', 't5', 't6', 't7'],
   // 👉 下载层级（强烈建议分批）
   levels: [
@@ -826,13 +828,16 @@ export const tiandituTerPolicyProvince = {
     // { z: 13, bbox: [73, 3, 135, 54] },
     // { z: 14, bbox: [73, 3, 135, 54] } // 国家级重点 13-14
     { z: 15, bbox: [104, 20, 112.5, 26.5] },
-    { z: 16, bbox: [104, 20, 112.5, 26.5] } // 省级重点（广西） 15-16
+    { z: 16, bbox: [104, 20, 112.5, 26.5] },
+    { z: 16, bbox: [104, 20, 112.5, 26.5] },
+    { z: 17, bbox: [104, 20, 112.5, 26.5] },
+    { z: 18, bbox: [104, 20, 112.5, 26.5] } // 省级重点（广西） 15-18
   ],
 
   downloaderOptions: {
     mode: 'mbtiles',
-    mbtilesFile: './output/tianditu_ter_w_china_17_18.mbtiles',
-    progressFile: './output/tianditu_ter_w_china_17_18.progress.json',
+    mbtilesFile: './output/tianditu_ter_w_guangxi_15_18.mbtiles',
+    progressFile: './output/tianditu_ter_w_guangxi_15_18.progress.json',
     concurrency: 1, // ❗ 天地图必须单线程
     delay: 10, //
     maxRetry: 3,
@@ -901,10 +906,10 @@ export const tiandituTerPolicyProvince = {
     const meta = {
       name: this.name,
       format: 'png',
-      minzoom: '17',
+      minzoom: '15',
       maxzoom: '18',
       bounds: '104,20,112.5,26.5',
-      center: '108.3664,22.8177,17',
+      center: '108.3664,22.8177,15',
       type: 'baselayer',
       attribution: '© 天地图'
     }

@@ -125,6 +125,28 @@ export default class Downloader {
   }
 
   /* ---------- progress display ---------- */
+  formatEta(seconds) {
+    if (!Number.isFinite(seconds) || seconds < 0)
+      return '--'
+
+    let remaining = Math.round(seconds)
+    const day = Math.floor(remaining / 86400)
+    remaining %= 86400
+    const hour = Math.floor(remaining / 3600)
+    remaining %= 3600
+    const minute = Math.floor(remaining / 60)
+    const second = remaining % 60
+    const showSeconds = seconds <= 5 * 60
+
+    if (day > 0)
+      return showSeconds ? `${day}天${hour}时${minute}分${second}秒` : `${day}天${hour}时${minute}分`
+    if (hour > 0)
+      return showSeconds ? `${hour}时${minute}分${second}秒` : `${hour}时${minute}分`
+    if (minute > 0)
+      return showSeconds ? `${minute}分${second}秒` : `${minute}分`
+    return `${second}秒`
+  }
+
   showProgress() {
     const elapsed = (Date.now() - this.startTime) / 1000
     const avg = elapsed ? this.done / elapsed : 0
@@ -135,7 +157,7 @@ export default class Downloader {
     process.stdout.write(
       `\r📦 ${this.done}/${this.totalTiles}`
       + ` | ⚡ ${inst} t/s (avg ${avg.toFixed(1)})`
-      + ` | 🔜 ${(eta / 60).toFixed(2)} m`
+      + ` | 🔜 ${this.formatEta(eta)}`
       + ` | ❌ ${this.stats.failRate.toFixed(2)}%`
       + ` | ♻️ skip ${this.stats.skipRate.toFixed(1)}%`
       + ` | 🔁 retry ${this.retryQueue.length}`
