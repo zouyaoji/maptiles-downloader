@@ -222,8 +222,8 @@ export const tiandituVecPolicyProvince = {
 
   downloaderOptions: {
     mode: 'mbtiles',
-    mbtilesFile: './output/tianditu_vec_w_china_17_18.mbtiles',
-    progressFile: './output/tianditu_vec_w_china_17_18.progress.json',
+    mbtilesFile: './output/tianditu_vec_w_guangxi_17_18.mbtiles',
+    progressFile: './output/tianditu_vec_w_guangxi_17_18.progress.json',
     concurrency: 1, // ❗ 天地图必须单线程
     delay: 10, //
     maxRetry: 3,
@@ -411,7 +411,7 @@ export const tiandituImgPolicyWorld = {
  * China 维度
  */
 export const tiandituImgPolicyChina = {
-  name: 'Tianditu Image Map China (13-14)',
+  name: 'Tianditu Image Map China (13-16)',
   subdomains: ['t0', 't1', 't2', 't3', 't4', 't5', 't6', 't7'],
   // 👉 下载层级（强烈建议分批）
   levels: [
@@ -424,8 +424,8 @@ export const tiandituImgPolicyChina = {
 
   downloaderOptions: {
     mode: 'mbtiles',
-    mbtilesFile: './output/tianditu_img_w_china_13_14.mbtiles',
-    progressFile: './output/tianditu_img_w_china_13_14.progress.json',
+    mbtilesFile: './output/tianditu_img_w_china_13_16.mbtiles',
+    progressFile: './output/tianditu_img_w_china_13_16.progress.json',
     concurrency: 1, // ❗ 天地图必须单线程
     delay: 10, //
     maxRetry: 3,
@@ -495,7 +495,7 @@ export const tiandituImgPolicyChina = {
       name: this.name,
       format: 'png',
       minzoom: '13',
-      maxzoom: '14',
+      maxzoom: '16',
       bounds: '73,3,135,54',
       center: '104,30,13',
       type: 'baselayer',
@@ -512,7 +512,7 @@ export const tiandituImgPolicyChina = {
  * Province 维度
  */
 export const tiandituImgPolicyProvince = {
-  name: 'Tianditu Image Map Guangxi (15-18)',
+  name: 'Tianditu Image Map Guangxi (17-18)',
   subdomains: ['t0', 't1', 't2', 't3', 't4', 't5', 't6', 't7'],
   // 👉 下载层级（强烈建议分批）
   levels: [
@@ -520,15 +520,13 @@ export const tiandituImgPolicyProvince = {
     // { z: 13, bbox: [73, 3, 135, 54] },
     // { z: 14, bbox: [73, 3, 135, 54] } // 国家级重点 13-14
     { z: 15, bbox: [104, 20, 112.5, 26.5] },
-    { z: 16, bbox: [104, 20, 112.5, 26.5] },
-    { z: 17, bbox: [104, 20, 112.5, 26.5] },
-    { z: 18, bbox: [104, 20, 112.5, 26.5] } // 省级重点（广西） 15-18
+    { z: 16, bbox: [104, 20, 112.5, 26.5] } // 省级重点（广西） 15-16
   ],
 
   downloaderOptions: {
     mode: 'mbtiles',
-    mbtilesFile: './output/tianditu_img_w_guangxi_15_18.mbtiles',
-    progressFile: './output/tianditu_img_w_guangxi_15_18.progress.json',
+    mbtilesFile: './output/tianditu_img_w_china_17_18.mbtiles',
+    progressFile: './output/tianditu_img_w_china_17_18.progress.json',
     concurrency: 1, // ❗ 天地图必须单线程
     delay: 10, //
     maxRetry: 3,
@@ -597,10 +595,10 @@ export const tiandituImgPolicyProvince = {
     const meta = {
       name: this.name,
       format: 'png',
-      minzoom: '15',
+      minzoom: '17',
       maxzoom: '18',
       bounds: '104,20,112.5,26.5',
-      center: '108.3664,22.8177,15',
+      center: '108.3664,22.8177,17',
       type: 'baselayer',
       attribution: '© 天地图'
     }
@@ -719,21 +717,19 @@ export const tiandituTerPolicyWorld = {
  * China 维度
  */
 export const tiandituTerPolicyChina = {
-  name: 'Tianditu Terrain Map China (13-16)',
+  name: 'Tianditu Terrain Map China (13-14)',
   subdomains: ['t0', 't1', 't2', 't3', 't4', 't5', 't6', 't7'],
   // 👉 下载层级（强烈建议分批）
   levels: [
     // ...Array.from({ length: 13 }, (_, i) => ({ z: i })) // 全球 0-12
     { z: 13, bbox: [73, 3, 135, 54] },
     { z: 14, bbox: [73, 3, 135, 54] } // 国家级重点 13-14
-    // { z: 15, bbox: [104, 20, 112.5, 26.5] },
-    // { z: 16, bbox: [104, 20, 112.5, 26.5] } // 省级重点（广西） 15-16
   ],
 
   downloaderOptions: {
     mode: 'mbtiles',
-    mbtilesFile: './output/tianditu_ter_w_china_13_16.mbtiles',
-    progressFile: './output/tianditu_ter_w_china_13_16.progress.json',
+    mbtilesFile: './output/tianditu_ter_w_china_13_14.mbtiles',
+    progressFile: './output/tianditu_ter_w_china_13_14.progress.json',
     concurrency: 1, // ❗ 天地图必须单线程
     delay: 10, //
     maxRetry: 3,
@@ -806,110 +802,6 @@ export const tiandituTerPolicyChina = {
       maxzoom: '16',
       bounds: '73,3,135,54',
       center: '104,30,13',
-      type: 'baselayer',
-      attribution: '© 天地图'
-    }
-
-    const stmt = db.prepare('INSERT INTO metadata VALUES (?,?)')
-    Object.entries(meta).forEach(([k, v]) => stmt.run(k, v))
-  }
-}
-
-/**
- * 天地图 · 地形底图（ter）
- * Province 维度
- */
-export const tiandituTerPolicyProvince = {
-  name: 'Tianditu Terrain Map Guangxi (15-18)',
-  subdomains: ['t0', 't1', 't2', 't3', 't4', 't5', 't6', 't7'],
-  // 👉 下载层级（强烈建议分批）
-  levels: [
-    // ...Array.from({ length: 13 }, (_, i) => ({ z: i })) // 全球 0-12
-    // { z: 13, bbox: [73, 3, 135, 54] },
-    // { z: 14, bbox: [73, 3, 135, 54] } // 国家级重点 13-14
-    { z: 15, bbox: [104, 20, 112.5, 26.5] },
-    { z: 16, bbox: [104, 20, 112.5, 26.5] },
-    { z: 16, bbox: [104, 20, 112.5, 26.5] },
-    { z: 17, bbox: [104, 20, 112.5, 26.5] },
-    { z: 18, bbox: [104, 20, 112.5, 26.5] } // 省级重点（广西） 15-18
-  ],
-
-  downloaderOptions: {
-    mode: 'mbtiles',
-    mbtilesFile: './output/tianditu_ter_w_guangxi_15_18.mbtiles',
-    progressFile: './output/tianditu_ter_w_guangxi_15_18.progress.json',
-    concurrency: 1, // ❗ 天地图必须单线程
-    delay: 10, //
-    maxRetry: 3,
-    mbBatchSize: 50 // 小批量，避免 WAL 堆积
-  },
-
-  /**
-   * WMTS Tile URL
-   */
-  getTileUrl(z, x, y, i) {
-    if (!tk)
-      throw new Error('❌ missing TIANDITU_TK')
-
-    const sub = this.subdomains[i % this.subdomains.length]
-    return (
-      `https://${sub}.tianditu.gov.cn/ter_w/wmts`
-      + '?SERVICE=WMTS'
-      + '&REQUEST=GetTile'
-      + '&VERSION=1.0.0'
-      + '&LAYER=ter'
-      + '&STYLE=default'
-      + '&TILEMATRIXSET=w'
-      + `&TILEMATRIX=${z}`
-      + `&TILEROW=${y}`
-      + `&TILECOL=${x}`
-      + '&FORMAT=tiles'
-      + `&tk=${tk}`
-    )
-  },
-
-  /**
-   * fetch headers（非常关键）
-   */
-  requestHeaders: {
-    'User-Agent':
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120',
-    'Referer': 'https://www.tianditu.gov.cn/',
-    'Accept': 'image/png,image/*;q=0.8,*/*;q=0.5'
-  },
-
-  /**
-   * PNG/JPEG 校验
-   */
-  validateTile(buf) {
-    if (!buf || buf.length < 4)
-      return false
-    // PNG 文件头
-    if (buf.slice(0, 8).equals(Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]))) {
-      return true
-    }
-    // JPEG 文件头
-    if (buf[0] === 0xFF && buf[1] === 0xD8 && buf[2] === 0xFF) {
-      return true
-    }
-    return false
-  },
-  /**
-   * MBTiles metadata
-   */
-  generateMetadata(db) {
-    db.exec(`
-      CREATE TABLE IF NOT EXISTS metadata (name TEXT,value TEXT);
-      DELETE FROM metadata;
-    `)
-
-    const meta = {
-      name: this.name,
-      format: 'png',
-      minzoom: '15',
-      maxzoom: '18',
-      bounds: '104,20,112.5,26.5',
-      center: '108.3664,22.8177,15',
       type: 'baselayer',
       attribution: '© 天地图'
     }

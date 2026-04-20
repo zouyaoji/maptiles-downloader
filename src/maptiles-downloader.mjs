@@ -2,7 +2,7 @@ import process from 'node:process'
 import Downloader from './core/Downloader.mjs'
 import { amazonawsTerrariumPolicyChina, amazonawsTerrariumPolicyWorld } from './policy/amazonaws.mjs'
 import { msnShadowMapPolicyChina, msnShadowMapPolicyProvince, msnShadowMapPolicyWorld, msnStreetMapPolicyChina, msnStreetMapPolicyProvince, msnStreetMapPolicyWorld } from './policy/msn.mjs'
-import { tiandituImgPolicyChina, tiandituImgPolicyProvince, tiandituImgPolicyWorld, tiandituTerPolicyChina, tiandituTerPolicyProvince, tiandituTerPolicyWorld, tiandituVecPolicyChina, tiandituVecPolicyProvince, tiandituVecPolicyWorld } from './policy/tianditu.mjs'
+import { tiandituImgPolicyChina, tiandituImgPolicyProvince, tiandituImgPolicyWorld, tiandituTerPolicyChina, tiandituTerPolicyWorld, tiandituVecPolicyChina, tiandituVecPolicyProvince, tiandituVecPolicyWorld } from './policy/tianditu.mjs'
 
 const checkOnly = process.argv.includes('--check-only')
 const repairOnly = process.argv.includes('--repair-only')
@@ -111,12 +111,12 @@ switch (args.type) {
     ])
     break
   }
-  case 'tianditu_ter_w_province': {
-    policys.push(...[
-      tiandituTerPolicyProvince
-    ])
-    break
-  }
+  // case 'tianditu_ter_w_province': {
+  //   policys.push(...[
+  //     tiandituTerPolicyProvince
+  //   ])
+  //   break
+  // }
   case 'amazonaws_ter_world': {
     policys.push(...[
       amazonawsTerrariumPolicyWorld
