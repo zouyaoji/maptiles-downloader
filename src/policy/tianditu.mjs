@@ -812,3 +812,110 @@ export const tiandituTerPolicyChina = {
     Object.entries(meta).forEach(([k, v]) => stmt.run(k, v))
   }
 }
+
+/**
+ * 天地图 · 道路注记图（cia_w）透明叠加层
+ * Pakistan + Kashmir 维度，与 msnImageMapPolicyPakistan 区域一致
+ * z0-5: 全球, z6-14: 巴基斯坦, z15-17: 克什米尔
+ */
+export const tiandituCiaPolicyPakistan = {
+  name: 'Tianditu Annotation Pakistan (0-14)',
+  subdomains: ['t0', 't1', 't2', 't3', 't4', 't5', 't6', 't7'],
+  levels: [
+    ...Array.from({ length: 6 }, (_, i) => ({ z: i })), // z0-5: 全球
+    { z: 6, bbox: [20, 5, 115, 65] }, // 中东→东南亚大区域
+    { z: 7, bbox: [32, 8, 105, 58] },
+    { z: 8, bbox: [42, 12, 97, 52] },
+    { z: 9, bbox: [50, 16, 90, 47] },
+    { z: 10, bbox: [54, 19, 85, 43] },
+    { z: 11, bbox: [57, 21, 82, 40] },
+    { z: 12, bbox: [59, 23, 79, 37] }, // 贴近巴基斯坦
+    { z: 13, bbox: [61.06957005015404, 23.647551721819234, 77.24701115337578, 37.16707346112021] },
+    { z: 14, bbox: [61.06957005015404, 23.647551721819234, 77.24701115337578, 37.16707346112021] }
+    // { z: 15, bbox: [73.94, 32.34, 79.27, 35.6] }, // z15-17: 克什米尔
+    // { z: 16, bbox: [73.94, 32.34, 79.27, 35.6] },
+    // { z: 17, bbox: [73.94, 32.34, 79.27, 35.6] }
+  ],
+
+  downloaderOptions: {
+    mode: 'mbtiles',
+    mbtilesFile: './output/tianditu_cia_w_pakistan_0_14.mbtiles',
+    progressFile: './output/tianditu_cia_w_pakistan_0_14.progress.json',
+    concurrency: 3, // ❗ 天地图必须单线程
+    delay: 10,
+    maxRetry: 3,
+    mbBatchSize: 50
+  },
+
+  /**
+   * DataServer Tile URL
+   * 格式：https://t{n}.tianditu.gov.cn/DataServer?T=cia_w&x={x}&y={y}&l={z}&tk={tk}
+   */
+  getTileUrl(z, x, y, i) {
+    if (!tk)
+      throw new Error('❌ missing TIANDITU_TK')
+
+    const sub = this.subdomains[i % this.subdomains.length]
+    return (
+      `https://${sub}.tianditu.gov.cn/cia_w/wmts`
+      + '?SERVICE=WMTS'
+      + '&REQUEST=GetTile'
+      + '&VERSION=1.0.0'
+      + '&LAYER=cia'
+      + '&STYLE=default'
+      + '&TILEMATRIXSET=w'
+      + `&TILEMATRIX=${z}`
+      + `&TILEROW=${y}`
+      + `&TILECOL=${x}`
+      + '&FORMAT=tiles'
+      + `&tk=${tk}`
+    )
+  },
+
+  /**
+   * fetch headers
+   */
+  requestHeaders: {
+    'User-Agent':
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120',
+    'Referer': 'https://www.tianditu.gov.cn/',
+    'Accept': 'image/png,image/*;q=0.8,*/*;q=0.5'
+  },
+
+  /**
+   * PNG 校验（cia_w 为透明 PNG）
+   */
+  validateTile(buf) {
+    return (
+      buf
+      && buf.length > 8
+      && buf
+        .slice(0, 8)
+        .equals(Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]))
+    )
+  },
+
+  /**
+   * MBTiles metadata
+   */
+  generateMetadata(db) {
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS metadata (name TEXT,value TEXT);
+      DELETE FROM metadata;
+    `)
+
+    const meta = {
+      name: this.name,
+      format: 'png',
+      minzoom: '0',
+      maxzoom: '14',
+      bounds: '-180,-85.0511,180,85.0511',
+      center: '69.15829060176492,30.407312591469722,5',
+      type: 'overlay',
+      attribution: '© 天地图'
+    }
+
+    const stmt = db.prepare('INSERT INTO metadata VALUES (?,?)')
+    Object.entries(meta).forEach(([k, v]) => stmt.run(k, v))
+  }
+}

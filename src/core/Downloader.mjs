@@ -92,6 +92,35 @@ export default class Downloader {
     }
   }
 
+  upsertMetadataIfNeeded(stage = 'runtime') {
+    if (this.mode !== 'mbtiles' || !this.db || !this.policy.generateMetadata)
+      return
+
+    const hasMetadataTable = this.db
+      .prepare(
+        `SELECT 1
+         FROM sqlite_master
+         WHERE type = 'table' AND name = 'metadata'
+         LIMIT 1`
+      )
+      .get()
+
+    let hasMetadataRows = false
+    if (hasMetadataTable) {
+      const row = this.db
+        .prepare('SELECT COUNT(1) AS c FROM metadata')
+        .get()
+      hasMetadataRows = (row?.c ?? 0) > 0
+    }
+
+    this.policy.generateMetadata(this.db)
+    console.log(
+      hasMetadataRows
+        ? `🧾 metadata updated (${stage})`
+        : `🧾 metadata written (${stage})`
+    )
+  }
+
   /* ---------- adaptive delay ---------- */
   recordResult(success) {
     this.recentResults.push(!!success)
@@ -309,6 +338,8 @@ export default class Downloader {
   async run(levels) {
     if (this.mode === 'mbtiles')
       this.initMBTiles()
+    if (this.mode === 'mbtiles')
+      this.upsertMetadataIfNeeded('start')
     process.on('SIGINT', this._onSigint)
 
     const gen = this.tileGenerator(levels, this.progress.cursor)
@@ -320,7 +351,7 @@ export default class Downloader {
 
     if (this.mode === 'mbtiles') {
       this.flushMBTiles()
-      this.policy.generateMetadata?.(this.db)
+      this.upsertMetadataIfNeeded('finish')
       if (this.checkIntegrityByLevels(levels)) {
         this.repairMissingTiles(levels)
       }
@@ -530,7 +561,7 @@ export default class Downloader {
     }
 
     this.flushMBTiles()
-    this.policy.generateMetadata?.(this.db)
+    this.upsertMetadataIfNeeded('repair-finish')
     this.db.close()
 
     console.log(`\n✅ Repair finished: ${done}/${missing.length}`)

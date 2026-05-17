@@ -300,19 +300,28 @@ export const msnImageMapPolicyChina = {
  * 微软msn影像图 pakistan 维度。
  */
 export const msnImageMapPolicyPakistan = {
-  name: 'MSN Image Map Pakistan (0-16)',
+  name: 'MSN Image Map Pakistan (0-17)',
   subdomains: ['t0', 't1', 't2', 't3'],
   levels: [
-    ...Array.from({ length: 17 }, (_, i) => ({
-      z: i,
-      bbox: [61.06957005015404, 23.647551721819234, 77.24701115337578, 37.16707346112021]
-    }))
+    ...Array.from({ length: 6 }, (_, i) => ({ z: i })), // z0-5: 全球
+    { z: 6, bbox: [20, 5, 115, 65] }, // 中东→东南亚大区域
+    { z: 7, bbox: [32, 8, 105, 58] },
+    { z: 8, bbox: [42, 12, 97, 52] },
+    { z: 9, bbox: [50, 16, 90, 47] },
+    { z: 10, bbox: [54, 19, 85, 43] },
+    { z: 11, bbox: [57, 21, 82, 40] },
+    { z: 12, bbox: [59, 23, 79, 37] }, // 贴近巴基斯坦
+    { z: 13, bbox: [61.06957005015404, 23.647551721819234, 77.24701115337578, 37.16707346112021] },
+    { z: 14, bbox: [61.06957005015404, 23.647551721819234, 77.24701115337578, 37.16707346112021] },
+    { z: 15, bbox: [73.94, 32.34, 79.27, 35.6] }, // z15-17: 克什米尔
+    { z: 16, bbox: [73.94, 32.34, 79.27, 35.6] },
+    { z: 17, bbox: [73.94, 32.34, 79.27, 35.6] }
   ],
   downloaderOptions: {
     mode: 'mbtiles',
     outDir: './output',
-    mbtilesFile: './output/msn_image_pakistan_0_16.mbtiles',
-    progressFile: './output/msn_image_pakistan_0_16.progress.json',
+    mbtilesFile: './output/msn_image_pakistan_0_17.mbtiles',
+    progressFile: './output/msn_image_pakistan_0_17.progress.json',
     concurrency: 512,
     maxRetry: 5,
     mbBatchSize: 250,
@@ -323,7 +332,7 @@ export const msnImageMapPolicyPakistan = {
     const sub = this.subdomains[i % this.subdomains.length]
     return (
       `https://dynamic.${sub}.tiles.ditu.live.com/comp/ch/${quadKey}`
-      + '?mkt=zh-cn,en-us&ur=CN&it=A&og=925&n=z&sv=9.43'
+      + '?mkt=en-us,ur-pk&ur=PK&it=A,G,L&og=925&n=z&sv=9.43'
     )
   },
   validateTile(buf) {
@@ -338,8 +347,8 @@ export const msnImageMapPolicyPakistan = {
       name: this.name,
       format: 'jpg',
       minzoom: '0',
-      maxzoom: '16',
-      bounds: '61.06957005015404,23.647551721819234,77.24701115337578,37.16707346112021',
+      maxzoom: '17',
+      bounds: '-180,-85.0511,180,85.0511',
       center: '69.15829060176492,30.407312591469722,5',
       type: 'baselayer',
       attribution: '© Bing Maps'

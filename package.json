@@ -22,6 +22,7 @@
     "download_tianditu_img_w_province": "node ./src/maptiles-downloader.mjs --type=tianditu_img_w_province",
     "download_tianditu_ter_w_world": "node ./src/maptiles-downloader.mjs --type=tianditu_ter_w_world",
     "download_tianditu_ter_w_china": "node ./src/maptiles-downloader.mjs --type=tianditu_ter_w_china",
+    "download_tianditu_cia_w_pakistan": "node ./src/maptiles-downloader.mjs --type=tianditu_cia_w_pakistan",
     "download_amazonaws_ter_world": "node ./src/maptiles-downloader.mjs --type=amazonaws_ter_world",
     "download_amazonaws_ter_china": "node ./src/maptiles-downloader.mjs --type=amazonaws_ter_china",
     "lint": "eslint",
