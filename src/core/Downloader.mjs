@@ -537,7 +537,7 @@ export default class Downloader {
 
       this.downloadTile(z, x, y)
         .then((buf) => {
-          if (buf)
+          if (Buffer.isBuffer(buf))
             this.bufferInsert(z, x, y, buf)
         })
         .catch(() => {})
