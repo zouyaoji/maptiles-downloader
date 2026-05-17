@@ -1,7 +1,7 @@
 import process from 'node:process'
 import Downloader from './core/Downloader.mjs'
 import { amazonawsTerrariumPolicyChina, amazonawsTerrariumPolicyWorld } from './policy/amazonaws.mjs'
-import { msnShadowMapPolicyChina, msnShadowMapPolicyProvince, msnShadowMapPolicyWorld, msnStreetMapPolicyChina, msnStreetMapPolicyProvince, msnStreetMapPolicyWorld } from './policy/msn.mjs'
+import { msnImageMapPolicyChina, msnImageMapPolicyPakistan, msnImageMapPolicyProvince, msnImageMapPolicyWorld, msnShadowMapPolicyChina, msnShadowMapPolicyProvince, msnShadowMapPolicyWorld, msnStreetMapPolicyChina, msnStreetMapPolicyProvince, msnStreetMapPolicyWorld } from './policy/msn.mjs'
 import { tiandituImgPolicyChina, tiandituImgPolicyProvince, tiandituImgPolicyWorld, tiandituTerPolicyChina, tiandituTerPolicyWorld, tiandituVecPolicyChina, tiandituVecPolicyProvince, tiandituVecPolicyWorld } from './policy/tianditu.mjs'
 
 const checkOnly = process.argv.includes('--check-only')
@@ -51,15 +51,39 @@ switch (args.type) {
     ])
     break
   }
+  case 'msn_image_world': {
+    policys.push(...[
+      msnImageMapPolicyWorld
+    ])
+    break
+  }
   case 'msn_shadow_china': {
     policys.push(...[
       msnShadowMapPolicyChina
     ])
     break
   }
+  case 'msn_image_china': {
+    policys.push(...[
+      msnImageMapPolicyChina
+    ])
+    break
+  }
+  case 'msn_image_pakistan': {
+    policys.push(...[
+      msnImageMapPolicyPakistan
+    ])
+    break
+  }
   case 'msn_shadow_province': {
     policys.push(...[
       msnShadowMapPolicyProvince
+    ])
+    break
+  }
+  case 'msn_image_province': {
+    policys.push(...[
+      msnImageMapPolicyProvince
     ])
     break
   }

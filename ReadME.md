@@ -41,6 +41,10 @@ MSN：
 - msn_street_world
 - msn_street_china
 - msn_street_province
+- msn_image_world
+- msn_image_china
+- msn_image_pakistan
+- msn_image_province
 - msn_shadow_world
 - msn_shadow_china
 - msn_shadow_province
@@ -78,3 +82,27 @@ node ./src/maptiles-downloader.mjs --type=amazonaws_ter_world --repair-only
 
 - .mbtiles 文件
 - .progress.json 进度文件
+
+## MSN 影像说明
+
+MSN 影像图层已接入，类型如下：
+
+- msn_image_world
+- msn_image_china
+- msn_image_province
+
+对应 npm scripts：
+
+- pnpm run download_msn_image_world
+- pnpm run download_msn_image_china
+- pnpm run download_msn_image_pakistan
+- pnpm run download_msn_image_province
+
+也可直接使用入口脚本：
+
+node ./src/maptiles-downloader.mjs --type=msn_image_world
+node ./src/maptiles-downloader.mjs --type=msn_image_china
+node ./src/maptiles-downloader.mjs --type=msn_image_pakistan
+node ./src/maptiles-downloader.mjs --type=msn_image_province
+
+说明：MSN 影像使用 `it=A` 的简化参数，返回 JPEG 影像瓦片；这是一层纯影像底图，不带标注。

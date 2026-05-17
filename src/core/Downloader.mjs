@@ -9,6 +9,8 @@ import DirProgress from './DirProgress.mjs'
 import ProgressState from './ProgressState.mjs'
 import RuntimeStats from './RuntimeStats.mjs'
 
+const NO_TILE = Symbol('no-tile')
+
 export default class Downloader {
   constructor(policy) {
     this.mode = policy.downloaderOptions.mode ?? 'mbtiles'
@@ -177,7 +179,12 @@ export default class Downloader {
         console.log(`❌ ${z}/${x}/${y} HTTP ${r.status}`)
         return null
       }
+      const tileInfo = r.headers.get('x-ve-tile-info')
+      const contentType = (r.headers.get('content-type') || '').toLowerCase()
       const b = Buffer.from(await r.arrayBuffer())
+
+      if (tileInfo === 'no-tile' || (contentType.startsWith('text/plain') && b.length === 0))
+        return NO_TILE
 
       if (!this.policy.validateTile(b)) {
         console.log(`❌ ${z}/${x}/${y} invalid tile`)
@@ -238,9 +245,11 @@ export default class Downloader {
         }
       }
 
-      const buf = await this.downloadTile(z, x, y)
+      const result = await this.downloadTile(z, x, y)
+      const buf = Buffer.isBuffer(result) ? result : null
+      const noTile = result === NO_TILE
 
-      this.recordResult(!!buf)
+      this.recordResult(!!buf || noTile)
       this.adjustDelay()
 
       if (buf) {
@@ -254,6 +263,10 @@ export default class Downloader {
           this.dirProgress.set(z, x, y)
         }
         this.stats.mark('ok')
+        this.done++
+      }
+      else if (noTile) {
+        this.stats.mark('skip')
         this.done++
       }
       else {

@@ -1,6 +1,26 @@
 import { Buffer } from 'node:buffer'
 import { tileXYToQuadKey } from '../utils/tile.mjs'
 
+function isPngTile(buf) {
+  return (
+    buf
+    && buf.length > 8
+    && buf
+      .slice(0, 8)
+      .equals(Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]))
+  )
+}
+
+function isJpegTile(buf) {
+  return (
+    buf
+    && buf.length > 3
+    && buf[0] === 0xFF
+    && buf[1] === 0xD8
+    && buf[2] === 0xFF
+  )
+}
+
 /**
  * 微软msn街道图 world 维度。
  * @see https://www.msn.com/zh-cn/weather/maps/precipitation?zoom=6&rcmode=1
@@ -36,13 +56,7 @@ export const msnStreetMapPolicyWorld = {
     )
   },
   validateTile(buf) {
-    return (
-      buf
-      && buf.length > 8
-      && buf
-        .slice(0, 8)
-        .equals(Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]))
-    )
+    return isPngTile(buf)
   },
   generateMetadata(db) {
     db.exec(`
@@ -100,13 +114,7 @@ export const msnStreetMapPolicyChina = {
     )
   },
   validateTile(buf) {
-    return (
-      buf
-      && buf.length > 8
-      && buf
-        .slice(0, 8)
-        .equals(Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]))
-    )
+    return isPngTile(buf)
   },
   generateMetadata(db) {
     db.exec(`
@@ -163,13 +171,7 @@ export const msnStreetMapPolicyProvince = {
     )
   },
   validateTile(buf) {
-    return (
-      buf
-      && buf.length > 8
-      && buf
-        .slice(0, 8)
-        .equals(Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]))
-    )
+    return isPngTile(buf)
   },
   generateMetadata(db) {
     db.exec(`
@@ -179,6 +181,213 @@ export const msnStreetMapPolicyProvince = {
     const meta = {
       name: this.name,
       format: 'png',
+      minzoom: '17',
+      maxzoom: '18',
+      bounds: '104,20,112.5,26.5',
+      center: '108.3664,22.8177,17',
+      type: 'baselayer',
+      attribution: '© Bing Maps'
+    }
+    const stmt = db.prepare('INSERT INTO metadata VALUES (?,?)')
+    Object.entries(meta).forEach(([k, v]) => stmt.run(k, v))
+  }
+}
+
+/**
+ * 微软msn影像图 world 维度。
+ */
+export const msnImageMapPolicyWorld = {
+  name: 'MSN Image Map World (0-12)',
+  subdomains: ['t0', 't1', 't2', 't3'],
+  levels: [
+    ...Array.from({ length: 13 }, (_, i) => ({ z: i }))
+  ],
+  downloaderOptions: {
+    mode: 'mbtiles',
+    outDir: './output',
+    mbtilesFile: './output/msn_image_world_0_12.mbtiles',
+    progressFile: './output/msn_image_world_0_12.progress.json',
+    concurrency: 512,
+    maxRetry: 5,
+    mbBatchSize: 250,
+    delay: 50
+  },
+  getTileUrl(z, x, y, i) {
+    const quadKey = tileXYToQuadKey(x, y, z)
+    const sub = this.subdomains[i % this.subdomains.length]
+    return (
+      `https://dynamic.${sub}.tiles.ditu.live.com/comp/ch/${quadKey}`
+      + '?mkt=zh-cn,en-us&ur=CN&it=A&og=925&n=z&sv=9.43'
+    )
+  },
+  validateTile(buf) {
+    return isJpegTile(buf)
+  },
+  generateMetadata(db) {
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS metadata (name TEXT,value TEXT);
+      DELETE FROM metadata;
+    `)
+    const meta = {
+      name: this.name,
+      format: 'jpg',
+      minzoom: '0',
+      maxzoom: '12',
+      bounds: '-180,-85.0511,180,85.0511',
+      center: '104,30,5',
+      type: 'baselayer',
+      attribution: '© Bing Maps'
+    }
+    const stmt = db.prepare('INSERT INTO metadata VALUES (?,?)')
+    Object.entries(meta).forEach(([k, v]) => stmt.run(k, v))
+  }
+}
+
+/**
+ * 微软msn影像图 china 维度。
+ */
+export const msnImageMapPolicyChina = {
+  name: 'MSN Image Map China (13-16)',
+  subdomains: ['t0', 't1', 't2', 't3'],
+  levels: [
+    ...Array.from({ length: 4 }, (_, i) => ({
+      z: 13 + i,
+      bbox: [73, 3, 135, 54]
+    }))
+  ],
+  downloaderOptions: {
+    mode: 'mbtiles',
+    outDir: './output',
+    mbtilesFile: './output/msn_image_china_13_16.mbtiles',
+    progressFile: './output/msn_image_china_13_16.progress.json',
+    concurrency: 512,
+    maxRetry: 5,
+    mbBatchSize: 250,
+    delay: 50
+  },
+  getTileUrl(z, x, y, i) {
+    const quadKey = tileXYToQuadKey(x, y, z)
+    const sub = this.subdomains[i % this.subdomains.length]
+    return (
+      `https://dynamic.${sub}.tiles.ditu.live.com/comp/ch/${quadKey}`
+      + '?mkt=zh-cn,en-us&ur=CN&it=A&og=925&n=z&sv=9.43'
+    )
+  },
+  validateTile(buf) {
+    return isJpegTile(buf)
+  },
+  generateMetadata(db) {
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS metadata (name TEXT,value TEXT);
+      DELETE FROM metadata;
+    `)
+    const meta = {
+      name: this.name,
+      format: 'jpg',
+      minzoom: '13',
+      maxzoom: '16',
+      bounds: '73,3,135,54',
+      center: '104,30,13',
+      type: 'baselayer',
+      attribution: '© Bing Maps'
+    }
+    const stmt = db.prepare('INSERT INTO metadata VALUES (?,?)')
+    Object.entries(meta).forEach(([k, v]) => stmt.run(k, v))
+  }
+}
+
+/**
+ * 微软msn影像图 pakistan 维度。
+ */
+export const msnImageMapPolicyPakistan = {
+  name: 'MSN Image Map Pakistan (0-16)',
+  subdomains: ['t0', 't1', 't2', 't3'],
+  levels: [
+    ...Array.from({ length: 17 }, (_, i) => ({
+      z: i,
+      bbox: [61.06957005015404, 23.647551721819234, 77.24701115337578, 37.16707346112021]
+    }))
+  ],
+  downloaderOptions: {
+    mode: 'mbtiles',
+    outDir: './output',
+    mbtilesFile: './output/msn_image_pakistan_0_16.mbtiles',
+    progressFile: './output/msn_image_pakistan_0_16.progress.json',
+    concurrency: 512,
+    maxRetry: 5,
+    mbBatchSize: 250,
+    delay: 50
+  },
+  getTileUrl(z, x, y, i) {
+    const quadKey = tileXYToQuadKey(x, y, z)
+    const sub = this.subdomains[i % this.subdomains.length]
+    return (
+      `https://dynamic.${sub}.tiles.ditu.live.com/comp/ch/${quadKey}`
+      + '?mkt=zh-cn,en-us&ur=CN&it=A&og=925&n=z&sv=9.43'
+    )
+  },
+  validateTile(buf) {
+    return isJpegTile(buf)
+  },
+  generateMetadata(db) {
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS metadata (name TEXT,value TEXT);
+      DELETE FROM metadata;
+    `)
+    const meta = {
+      name: this.name,
+      format: 'jpg',
+      minzoom: '0',
+      maxzoom: '16',
+      bounds: '61.06957005015404,23.647551721819234,77.24701115337578,37.16707346112021',
+      center: '69.15829060176492,30.407312591469722,5',
+      type: 'baselayer',
+      attribution: '© Bing Maps'
+    }
+    const stmt = db.prepare('INSERT INTO metadata VALUES (?,?)')
+    Object.entries(meta).forEach(([k, v]) => stmt.run(k, v))
+  }
+}
+
+/**
+ * 微软msn影像图 province 维度。
+ */
+export const msnImageMapPolicyProvince = {
+  name: 'MSN Image Map Guangxi (17-18)',
+  subdomains: ['t0', 't1', 't2', 't3'],
+  levels: [
+    { z: 17, bbox: [104, 20, 112.5, 26.5] },
+    { z: 18, bbox: [104, 20, 112.5, 26.5] }
+  ],
+  downloaderOptions: {
+    mode: 'mbtiles',
+    outDir: './output',
+    mbtilesFile: './output/msn_image_guangxi_17_18.mbtiles',
+    progressFile: './output/msn_image_guangxi_17_18.progress.json',
+    concurrency: 512,
+    maxRetry: 5,
+    mbBatchSize: 250,
+    delay: 50
+  },
+  getTileUrl(z, x, y, i) {
+    const quadKey = tileXYToQuadKey(x, y, z)
+    const sub = this.subdomains[i % this.subdomains.length]
+    return (
+      `https://dynamic.${sub}.tiles.ditu.live.com/comp/ch/${quadKey}`
+      + '?mkt=zh-cn,en-us&ur=CN&it=A&og=925&n=z&sv=9.43'
+    )
+  },
+  validateTile(buf) {
+    return isJpegTile(buf)
+  },
+  generateMetadata(db) {
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS metadata (name TEXT,value TEXT);
+      DELETE FROM metadata;
+    `)
+    const meta = {
+      name: this.name,
+      format: 'jpg',
       minzoom: '17',
       maxzoom: '18',
       bounds: '104,20,112.5,26.5',
@@ -224,13 +433,7 @@ export const msnShadowMapPolicyWorld = {
     )
   },
   validateTile(buf) {
-    return (
-      buf
-      && buf.length > 8
-      && buf
-        .slice(0, 8)
-        .equals(Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]))
-    )
+    return isPngTile(buf)
   },
   generateMetadata(db) {
     db.exec(`
@@ -285,13 +488,7 @@ export const msnShadowMapPolicyChina = {
     )
   },
   validateTile(buf) {
-    return (
-      buf
-      && buf.length > 8
-      && buf
-        .slice(0, 8)
-        .equals(Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]))
-    )
+    return isPngTile(buf)
   },
   generateMetadata(db) {
     db.exec(`
@@ -346,13 +543,7 @@ export const msnShadowMapPolicyProvince = {
     )
   },
   validateTile(buf) {
-    return (
-      buf
-      && buf.length > 8
-      && buf
-        .slice(0, 8)
-        .equals(Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]))
-    )
+    return isPngTile(buf)
   },
   generateMetadata(db) {
     db.exec(`
