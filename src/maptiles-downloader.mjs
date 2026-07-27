@@ -1,11 +1,12 @@
 import process from 'node:process'
 import Downloader from './core/Downloader.mjs'
 import { amazonawsTerrariumPolicyChina, amazonawsTerrariumPolicyWorld } from './policy/amazonaws.mjs'
-import { msnImageMapPolicyChina, msnImageMapPolicyPakistan, msnImageMapPolicyProvince, msnImageMapPolicyWorld, msnShadowMapPolicyChina, msnShadowMapPolicyProvince, msnShadowMapPolicyWorld, msnStreetMapPolicyChina, msnStreetMapPolicyProvince, msnStreetMapPolicyWorld } from './policy/msn.mjs'
+import { msnImageMapPolicyChina, msnImageMapPolicyPakistan, msnImageMapPolicyProvince, msnImageMapPolicyWorld, msnImageMapPolicyYilong, msnShadowMapPolicyChina, msnShadowMapPolicyProvince, msnShadowMapPolicyWorld, msnStreetMapPolicyChina, msnStreetMapPolicyProvince, msnStreetMapPolicyWorld } from './policy/msn.mjs'
 import { tiandituCiaPolicyPakistan, tiandituImgPolicyChina, tiandituImgPolicyProvince, tiandituImgPolicyWorld, tiandituTerPolicyChina, tiandituTerPolicyWorld, tiandituVecPolicyChina, tiandituVecPolicyProvince, tiandituVecPolicyWorld } from './policy/tianditu.mjs'
 
 const checkOnly = process.argv.includes('--check-only')
 const repairOnly = process.argv.includes('--repair-only')
+const acceptNoTile = process.argv.includes('--accept-no-tile')
 
 function parseArgs() {
   const args = process.argv.slice(2)
@@ -84,6 +85,12 @@ switch (args.type) {
   case 'msn_image_province': {
     policys.push(...[
       msnImageMapPolicyProvince
+    ])
+    break
+  }
+  case 'msn_image_yilong': {
+    policys.push(...[
+      msnImageMapPolicyYilong
     ])
     break
   }
@@ -178,8 +185,7 @@ async function run(policys) {
 
     if (repairOnly) {
       dl.initMBTiles()
-      await dl.repairMissingTiles(levels, true)
-      dl.db.close()
+      await dl.repairMissingTiles(levels, true, acceptNoTile)
       process.exit(0)
     }
 

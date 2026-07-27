@@ -300,7 +300,7 @@ export const msnImageMapPolicyChina = {
  * 微软msn影像图 pakistan 维度。
  */
 export const msnImageMapPolicyPakistan = {
-  name: 'MSN Image Map Pakistan (0-17)',
+  name: 'MSN Image Map Pakistan (0-18)',
   subdomains: ['t0', 't1', 't2', 't3'],
   levels: [
     ...Array.from({ length: 6 }, (_, i) => ({ z: i })), // z0-5: 全球
@@ -313,16 +313,17 @@ export const msnImageMapPolicyPakistan = {
     { z: 12, bbox: [59, 23, 79, 37] }, // 贴近巴基斯坦
     { z: 13, bbox: [61.06957005015404, 23.647551721819234, 77.24701115337578, 37.16707346112021] },
     { z: 14, bbox: [61.06957005015404, 23.647551721819234, 77.24701115337578, 37.16707346112021] },
-    { z: 15, bbox: [73.94, 32.34, 79.27, 35.6] }, // z15-17: 克什米尔
-    { z: 16, bbox: [73.94, 32.34, 79.27, 35.6] },
-    { z: 17, bbox: [73.94, 32.34, 79.27, 35.6] }
+    { z: 15, bbox: [69.90175587624304, 33.55, 73.89041666666668, 36.91125] }, // z15-18: 北巴基斯坦/AJK
+    { z: 16, bbox: [69.90175587624304, 33.55, 73.89041666666668, 36.91125] },
+    { z: 17, bbox: [69.90175587624304, 33.55, 73.89041666666668, 36.91125] },
+    { z: 18, bbox: [69.90175587624304, 33.55, 73.89041666666668, 36.91125] }
   ],
   downloaderOptions: {
     mode: 'mbtiles',
     outDir: './output',
     mbtilesFile: './output/msn_image_pakistan_0_17.mbtiles',
     progressFile: './output/msn_image_pakistan_0_17.progress.json',
-    concurrency: 512,
+    concurrency: 1200,
     maxRetry: 5,
     mbBatchSize: 250,
     delay: 50
@@ -347,9 +348,80 @@ export const msnImageMapPolicyPakistan = {
       name: this.name,
       format: 'jpg',
       minzoom: '0',
-      maxzoom: '17',
+      maxzoom: '18',
       bounds: '-180,-85.0511,180,85.0511',
       center: '69.15829060176492,30.407312591469722,5',
+      type: 'baselayer',
+      attribution: '© Bing Maps'
+    }
+    const stmt = db.prepare('INSERT INTO metadata VALUES (?,?)')
+    Object.entries(meta).forEach(([k, v]) => stmt.run(k, v))
+  }
+}
+
+/**
+ * 微软msn影像图 yilong 维度。
+ */
+export const msnImageMapPolicyYilong = {
+  name: 'MSN Image Map Yilong (17-20)',
+  subdomains: ['t0', 't1', 't2', 't3'],
+  levels: [
+    // { z: 0, bbox: [106.197893, 31.190316, 106.883226, 31.662245] },
+    // { z: 1, bbox: [106.197893, 31.190316, 106.883226, 31.662245] },
+    // { z: 2, bbox: [106.197893, 31.190316, 106.883226, 31.662245] },
+    // { z: 3, bbox: [106.197893, 31.190316, 106.883226, 31.662245] },
+    // { z: 4, bbox: [106.197893, 31.190316, 106.883226, 31.662245] },
+    // { z: 5, bbox: [106.197893, 31.190316, 106.883226, 31.662245] },
+    // { z: 6, bbox: [106.197893, 31.190316, 106.883226, 31.662245] },
+    // { z: 7, bbox: [106.197893, 31.190316, 106.883226, 31.662245] },
+    // { z: 8, bbox: [106.197893, 31.190316, 106.883226, 31.662245] },
+    // { z: 9, bbox: [106.197893, 31.190316, 106.883226, 31.662245] },
+    { z: 10, bbox: [106.197893, 31.190316, 106.883226, 31.662245] },
+    { z: 11, bbox: [106.197893, 31.190316, 106.883226, 31.662245] },
+    { z: 12, bbox: [106.197893, 31.190316, 106.883226, 31.662245] },
+    { z: 13, bbox: [106.197893, 31.190316, 106.883226, 31.662245] },
+    { z: 14, bbox: [106.197893, 31.190316, 106.883226, 31.662245] },
+    { z: 15, bbox: [106.197893, 31.190316, 106.883226, 31.662245] },
+    { z: 16, bbox: [106.197893, 31.190316, 106.883226, 31.662245] },
+    { z: 17, bbox: [106.197893, 31.190316, 106.883226, 31.662245] },
+    { z: 18, bbox: [106.197893, 31.190316, 106.883226, 31.662245] },
+    { z: 19, bbox: [106.197893, 31.190316, 106.883226, 31.662245] },
+    { z: 20, bbox: [106.197893, 31.190316, 106.883226, 31.662245] },
+    { z: 21, bbox: [106.197893, 31.190316, 106.883226, 31.662245] }
+  ],
+  downloaderOptions: {
+    mode: 'mbtiles',
+    outDir: './output',
+    mbtilesFile: './output/msn_image_yilong_10_21.mbtiles',
+    progressFile: './output/msn_image_yilong_10_21.progress.json',
+    concurrency: 1500,
+    maxRetry: 5,
+    mbBatchSize: 250,
+    delay: 50
+  },
+  getTileUrl(z, x, y, i) {
+    const quadKey = tileXYToQuadKey(x, y, z)
+    const sub = this.subdomains[i % this.subdomains.length]
+    return (
+      `https://dynamic.${sub}.tiles.ditu.live.com/comp/ch/${quadKey}`
+      + '?mkt=zh-cn,en-us&ur=CN&it=A,G&og=925&n=z&sv=9.43'
+    )
+  },
+  validateTile(buf) {
+    return isJpegTile(buf)
+  },
+  generateMetadata(db) {
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS metadata (name TEXT,value TEXT);
+      DELETE FROM metadata;
+    `)
+    const meta = {
+      name: this.name,
+      format: 'jpg',
+      minzoom: '10',
+      maxzoom: '21',
+      bounds: '106.197893,31.190316,106.883226,31.662245',
+      center: '106.5405595,31.4262805,10',
       type: 'baselayer',
       attribution: '© Bing Maps'
     }

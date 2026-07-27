@@ -9,6 +9,10 @@ import DirProgress from './DirProgress.mjs'
 import ProgressState from './ProgressState.mjs'
 import RuntimeStats from './RuntimeStats.mjs'
 
+// 0 字节占位，服务器无图时写入 DB，防止 scan 重复报 missing
+// MBTiles viewer 通常对空 blob 直接跳过（不渲染）
+const NO_TILE_PLACEHOLDER = Buffer.alloc(0)
+
 const NO_TILE = Symbol('no-tile')
 
 export default class Downloader {
@@ -500,7 +504,7 @@ export default class Downloader {
     return missing
   }
 
-  async repairMissingTiles(levels, listen = false) {
+  async repairMissingTiles(levels, listen = false, acceptNoTile = false) {
     if (this.mode !== 'mbtiles') {
       throw new Error('repair only supports mbtiles mode')
     }
@@ -523,10 +527,21 @@ export default class Downloader {
       return
     }
 
-    console.log(`🔧 Repairing ${missing.length} tiles with ${works} workers`)
+    const repairDelay = this.delay ?? 0
+    console.log(`🔧 Repairing ${missing.length} tiles with ${works} workers (delay=${repairDelay}ms, acceptNoTile=${acceptNoTile})`)
+
+    // 打印前5条样本URL，方便浏览器验证服务器响应
+    console.log('🔗 Sample URLs (first 5):')
+    for (let i = 0; i < Math.min(5, missing.length); i++) {
+      const { z, x, y } = missing[i]
+      console.log(`  [${i}] z${z}/${x}/${y} → ${this.policy.getTileUrl(z, x, y, i)}`)
+    }
 
     let index = 0
     let done = 0
+    let written = 0
+    let skipped = 0 // NO_TILE
+    let failed = 0
     let active = 0
 
     const next = async () => {
@@ -535,17 +550,31 @@ export default class Downloader {
       const { z, x, y } = missing[index++]
       active++
 
+      if (repairDelay > 0) await sleep(repairDelay)
+
       this.downloadTile(z, x, y)
-        .then((buf) => {
-          if (Buffer.isBuffer(buf))
-            this.bufferInsert(z, x, y, buf)
+        .then((result) => {
+          if (Buffer.isBuffer(result)) {
+            this.bufferInsert(z, x, y, result)
+            written++
+          }
+          else if (result === NO_TILE) {
+            skipped++
+            if (acceptNoTile) {
+              this.bufferInsert(z, x, y, NO_TILE_PLACEHOLDER)
+              written++
+            }
+          }
+          else {
+            failed++
+          }
         })
-        .catch(() => {})
+        .catch(() => { failed++ })
         .finally(() => {
           done++
           active--
           if (done % 50 === 0) {
-            process.stdout.write(`\r🔧 repaired ${done}/${missing.length}`)
+            process.stdout.write(`\r🔧 repaired ${done}/${missing.length} (written ${written}, no-tile ${skipped}, failed ${failed})`)
           }
           next()
         })
@@ -564,7 +593,7 @@ export default class Downloader {
     this.upsertMetadataIfNeeded('repair-finish')
     this.db.close()
 
-    console.log(`\n✅ Repair finished: ${done}/${missing.length}`)
+    console.log(`\n✅ Repair finished: attempted ${done}/${missing.length}, written ${written}, no-tile ${skipped}, failed ${failed}`)
   }
 
   _onSigint() {
