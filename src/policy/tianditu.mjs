@@ -124,7 +124,7 @@ export const tiandituVecPolicyChina = {
     mode: 'mbtiles',
     mbtilesFile: './output/tianditu_vec_w_china_13_16.mbtiles',
     progressFile: './output/tianditu_vec_w_china_13_16.progress.json',
-    concurrency: 1, // ❗ 天地图必须单线程
+    concurrency: 2, // ❗ 天地图必须单线程
     delay: 10, //
     maxRetry: 3,
     mbBatchSize: 50 // 小批量，避免 WAL 堆积
@@ -509,6 +509,93 @@ export const tiandituImgPolicyChina = {
 
 /**
  * 天地图 · 影像底图（img）
+ * Shaoguan 维度（12 层）——与 Bing 不同的影像数据源，时相可能不同，可用作有云区域的备选
+ * bbox 与 MSN 韶关一致（bounds/韶关.geojson 外扩 0.2°）
+ */
+export const tiandituImgPolicyShaoguan = {
+  name: 'Tianditu Image Map Shaoguan (12)',
+  subdomains: ['t0', 't1', 't2', 't3', 't4', 't5', 't6', 't7'],
+  levels: [
+    {
+      z: 12,
+      bbox: [112.64654694000005, 23.689888519000068, 114.94473159000002, 25.71997878800006]
+    }
+  ],
+
+  downloaderOptions: {
+    mode: 'mbtiles',
+    mbtilesFile: './output/tianditu_img_w_shaoguan_12.mbtiles',
+    progressFile: './output/tianditu_img_w_shaoguan_12.progress.json',
+    concurrency: 3, // 天地图并发不宜太高，此处按需改成 3 线程
+    delay: 10,
+    maxRetry: 3,
+    mbBatchSize: 50 // 小批量，避免 WAL 堆积
+  },
+
+  getTileUrl(z, x, y, i) {
+    if (!tk)
+      throw new Error('❌ missing TIANDITU_TK')
+
+    const sub = this.subdomains[i % this.subdomains.length]
+    return (
+      `https://${sub}.tianditu.gov.cn/img_w/wmts`
+      + '?SERVICE=WMTS'
+      + '&REQUEST=GetTile'
+      + '&VERSION=1.0.0'
+      + '&LAYER=img'
+      + '&STYLE=default'
+      + '&TILEMATRIXSET=w'
+      + `&TILEMATRIX=${z}`
+      + `&TILEROW=${y}`
+      + `&TILECOL=${x}`
+      + '&FORMAT=tiles'
+      + `&tk=${tk}`
+    )
+  },
+
+  requestHeaders: {
+    'User-Agent':
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120',
+    'Referer': 'https://www.tianditu.gov.cn/',
+    'Accept': 'image/png,image/*;q=0.8,*/*;q=0.5'
+  },
+
+  validateTile(buf) {
+    if (!buf || buf.length < 4)
+      return false
+    // PNG 文件头
+    if (buf.slice(0, 8).equals(Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A])))
+      return true
+    // JPEG 文件头
+    if (buf[0] === 0xFF && buf[1] === 0xD8 && buf[2] === 0xFF)
+      return true
+    return false
+  },
+
+  generateMetadata(db) {
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS metadata (name TEXT,value TEXT);
+      DELETE FROM metadata;
+    `)
+
+    const meta = {
+      name: this.name,
+      format: 'jpg',
+      minzoom: '12',
+      maxzoom: '12',
+      bounds: '112.64654694000005,23.689888519000068,114.94473159000002,25.71997878800006',
+      center: '113.79563926500004,24.704933653500066,12',
+      type: 'baselayer',
+      attribution: '© 天地图'
+    }
+
+    const stmt = db.prepare('INSERT INTO metadata VALUES (?,?)')
+    Object.entries(meta).forEach(([k, v]) => stmt.run(k, v))
+  }
+}
+
+/**
+ * 天地图 · 影像底图（img）
  * Province 维度
  */
 export const tiandituImgPolicyProvince = {
@@ -831,9 +918,9 @@ export const tiandituCiaPolicyPakistan = {
     { z: 11, bbox: [57, 21, 82, 40] },
     { z: 12, bbox: [59, 23, 79, 37] }, // 贴近巴基斯坦
     { z: 13, bbox: [61.06957005015404, 23.647551721819234, 77.24701115337578, 37.16707346112021] },
-    { z: 14, bbox: [61.06957005015404, 23.647551721819234, 77.24701115337578, 37.16707346112021] }
-    // { z: 15, bbox: [73.94, 32.34, 79.27, 35.6] }, // z15-17: 克什米尔
-    // { z: 16, bbox: [73.94, 32.34, 79.27, 35.6] },
+    { z: 14, bbox: [61.06957005015404, 23.647551721819234, 77.24701115337578, 37.16707346112021] },
+    { z: 15, bbox: [73.94, 32.34, 79.27, 35.6] }, // z15-17: 克什米尔
+    { z: 16, bbox: [73.94, 32.34, 79.27, 35.6] }
     // { z: 17, bbox: [73.94, 32.34, 79.27, 35.6] }
   ],
 
@@ -908,7 +995,7 @@ export const tiandituCiaPolicyPakistan = {
       name: this.name,
       format: 'png',
       minzoom: '0',
-      maxzoom: '14',
+      maxzoom: '16',
       bounds: '-180,-85.0511,180,85.0511',
       center: '69.15829060176492,30.407312591469722,5',
       type: 'overlay',

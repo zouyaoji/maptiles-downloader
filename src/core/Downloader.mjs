@@ -111,9 +111,11 @@ export default class Downloader {
 
     let hasMetadataRows = false
     if (hasMetadataTable) {
-      const row = this.db
-        .prepare('SELECT COUNT(1) AS c FROM metadata')
-        .get()
+      const row = /** @type {{ c?: number } | undefined} */ (
+        this.db
+          .prepare('SELECT COUNT(1) AS c FROM metadata')
+          .get()
+      )
       hasMetadataRows = (row?.c ?? 0) > 0
     }
 
@@ -279,7 +281,7 @@ export default class Downloader {
       }
 
       const result = await this.downloadTile(z, x, y)
-      const buf = Buffer.isBuffer(result) ? result : null
+      const buf = result instanceof Buffer ? result : null
       const noTile = result === NO_TILE
 
       this.recordResult(!!buf || noTile)
@@ -324,7 +326,8 @@ export default class Downloader {
       return
     console.log(`\n🔁 retry failed: ${this.failedTiles.length}`)
     for (const t of this.failedTiles) {
-      const buf = await this.downloadTile(t.z, t.x, t.y)
+      const result = await this.downloadTile(t.z, t.x, t.y)
+      const buf = result instanceof Buffer ? result : null
       if (buf) {
         if (this.mode === 'mbtiles') {
           this.bufferInsert(t.z, t.x, t.y, buf)
@@ -550,7 +553,8 @@ export default class Downloader {
       const { z, x, y } = missing[index++]
       active++
 
-      if (repairDelay > 0) await sleep(repairDelay)
+      if (repairDelay > 0)
+        await sleep(repairDelay)
 
       this.downloadTile(z, x, y)
         .then((result) => {

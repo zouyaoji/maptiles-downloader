@@ -482,6 +482,64 @@ export const msnImageMapPolicyProvince = {
 }
 
 /**
+ * 微软msn影像图 韶关 维度（13-14）。
+ * bbox 由 bounds/韶关.geojson 外包矩形外扩 0.2° 得到，确保覆盖整个韶关。
+ */
+export const msnImageMapPolicyShaoguan = {
+  name: 'MSN Image Map Shaoguan (13-14)',
+  subdomains: ['t0', 't1', 't2', 't3'],
+  levels: [
+    {
+      z: 13,
+      bbox: [112.64654694000005, 23.689888519000068, 114.94473159000002, 25.71997878800006]
+    },
+    {
+      z: 14,
+      bbox: [112.64654694000005, 23.689888519000068, 114.94473159000002, 25.71997878800006]
+    }
+  ],
+  downloaderOptions: {
+    mode: 'mbtiles',
+    outDir: './output',
+    mbtilesFile: './output/msn_image_shaoguan_13_14.mbtiles',
+    progressFile: './output/msn_image_shaoguan_13_14.progress.json',
+    concurrency: 512,
+    maxRetry: 5,
+    mbBatchSize: 250,
+    delay: 50
+  },
+  getTileUrl(z, x, y, i) {
+    const quadKey = tileXYToQuadKey(x, y, z)
+    const sub = this.subdomains[i % this.subdomains.length]
+    return (
+      `https://dynamic.${sub}.tiles.ditu.live.com/comp/ch/${quadKey}`
+      + '?mkt=zh-cn,en-us&ur=CN&it=A&og=925&n=z&sv=9.43'
+    )
+  },
+  validateTile(buf) {
+    return isJpegTile(buf)
+  },
+  generateMetadata(db) {
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS metadata (name TEXT,value TEXT);
+      DELETE FROM metadata;
+    `)
+    const meta = {
+      name: this.name,
+      format: 'jpg',
+      minzoom: '13',
+      maxzoom: '14',
+      bounds: '112.64654694000005,23.689888519000068,114.94473159000002,25.71997878800006',
+      center: '113.79563926500004,24.704933653500066,13',
+      type: 'baselayer',
+      attribution: '© Bing Maps'
+    }
+    const stmt = db.prepare('INSERT INTO metadata VALUES (?,?)')
+    Object.entries(meta).forEach(([k, v]) => stmt.run(k, v))
+  }
+}
+
+/**
  * 微软msn山影图 world 维度。
  * @see https://www.msn.com/zh-cn/weather/maps/temperature?zoom=7&rcmode=1
  */

@@ -3,7 +3,12 @@
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "target": "es2022",
-    "checkJs": true
+    "checkJs": true,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "useUnknownInCatchVariables": false,
+    "types": ["node"]
   },
-  "include": ["**/*.mjs"]
+  "include": ["src/**/*.mjs", "scripts/**/*.mjs"],
+  "exclude": ["node_modules"]
 }

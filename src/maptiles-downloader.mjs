@@ -2,15 +2,20 @@ import path from 'node:path'
 import process from 'node:process'
 import Downloader from './core/Downloader.mjs'
 import { amazonawsTerrariumPolicyChina, amazonawsTerrariumPolicyWorld } from './policy/amazonaws.mjs'
-import { msnImageMapPolicyChina, msnImageMapPolicyPakistan, msnImageMapPolicyProvince, msnImageMapPolicyWorld, msnImageMapPolicyYilong, msnShadowMapPolicyChina, msnShadowMapPolicyProvince, msnShadowMapPolicyWorld, msnStreetMapPolicyChina, msnStreetMapPolicyProvince, msnStreetMapPolicyWorld } from './policy/msn.mjs'
-import { tiandituCiaPolicyPakistan, tiandituImgPolicyChina, tiandituImgPolicyProvince, tiandituImgPolicyWorld, tiandituTerPolicyChina, tiandituTerPolicyWorld, tiandituVecPolicyChina, tiandituVecPolicyProvince, tiandituVecPolicyWorld } from './policy/tianditu.mjs'
+import { msnImageMapPolicyChina, msnImageMapPolicyPakistan, msnImageMapPolicyProvince, msnImageMapPolicyShaoguan, msnImageMapPolicyWorld, msnImageMapPolicyYilong, msnShadowMapPolicyChina, msnShadowMapPolicyProvince, msnShadowMapPolicyWorld, msnStreetMapPolicyChina, msnStreetMapPolicyProvince, msnStreetMapPolicyWorld } from './policy/msn.mjs'
+import { tiandituCiaPolicyPakistan, tiandituImgPolicyChina, tiandituImgPolicyProvince, tiandituImgPolicyShaoguan, tiandituImgPolicyWorld, tiandituTerPolicyChina, tiandituTerPolicyWorld, tiandituVecPolicyChina, tiandituVecPolicyProvince, tiandituVecPolicyWorld } from './policy/tianditu.mjs'
 
 const checkOnly = process.argv.includes('--check-only')
 const repairOnly = process.argv.includes('--repair-only')
 const acceptNoTile = process.argv.includes('--accept-no-tile')
 
+/**
+ * 解析命令行参数 --key=value / --key value / 布尔开关 --key
+ * @returns {Record<string, string | boolean>} 解析后的参数映射表
+ */
 function parseArgs() {
   const args = process.argv.slice(2)
+  /** @type {Record<string, string | boolean>} */
   const params = {}
 
   for (let i = 0; i < args.length; i++) {
@@ -35,6 +40,7 @@ function parseArgs() {
   return params
 }
 
+/** @type {*[]} */
 const policys = []
 
 const args = /** @type {Record<string, string | boolean>} */ (parseArgs())
@@ -89,6 +95,12 @@ switch (args.type) {
     ])
     break
   }
+  case 'msn_image_shaoguan': {
+    policys.push(...[
+      msnImageMapPolicyShaoguan
+    ])
+    break
+  }
   case 'msn_shadow_province': {
     policys.push(...[
       msnShadowMapPolicyProvince
@@ -134,6 +146,12 @@ switch (args.type) {
   case 'tianditu_img_w_china': {
     policys.push(...[
       tiandituImgPolicyChina
+    ])
+    break
+  }
+  case 'tianditu_img_w_shaoguan': {
+    policys.push(...[
+      tiandituImgPolicyShaoguan
     ])
     break
   }
@@ -273,7 +291,7 @@ function applyRegionOverrides(policy) {
   const origGenerate = policy.generateMetadata.bind(policy)
 
   /**
-   * @param {import('better-sqlite3').Database} db
+   * @param {InstanceType<import('better-sqlite3')>} db
    */
   function writeRegionMetadata(db) {
     origGenerate(db)

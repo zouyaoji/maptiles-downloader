@@ -10,6 +10,10 @@
     "download_msn_image_world": "node ./src/maptiles-downloader.mjs --type=msn_image_world",
     "download_msn_image_china": "node ./src/maptiles-downloader.mjs --type=msn_image_china",
     "download_msn_image_pakistan": "node ./src/maptiles-downloader.mjs --type=msn_image_pakistan",
+    "download_msn_image_shaoguan": "node ./src/maptiles-downloader.mjs --type=msn_image_shaoguan",
+    "merge_msn_image_shaoguan": "node ./src/maptiles-to-tif.mjs --mbtiles=./output/msn_image_shaoguan_13_14.mbtiles --out=./output/msn_image_shaoguan.tif --zoom=14",
+    "merge_msn_image_shaoguan_overview": "node ./src/maptiles-to-tif.mjs --mbtiles=./output/msn_image_shaoguan_13_14.mbtiles --out=./output/msn_image_shaoguan_overview.tif --zoom=14,13",
+    "download_merge_msn_image_shaoguan": "node ./src/maptiles-downloader.mjs --type=msn_image_shaoguan && node ./src/maptiles-to-tif.mjs --mbtiles=./output/msn_image_shaoguan_13_14.mbtiles --out=./output/msn_image_shaoguan.tif",
     "download_msn_image_province": "node ./src/maptiles-downloader.mjs --type=msn_image_province",
     "download_msn_image_yilong": "node ./src/maptiles-downloader.mjs --type=msn_image_yilong",
     "download_msn_shadow_world": "node ./src/maptiles-downloader.mjs --type=msn_shadow_world",
@@ -20,6 +24,9 @@
     "download_tianditu_vec_w_province": "node ./src/maptiles-downloader.mjs --type=tianditu_vec_w_province",
     "download_tianditu_img_w_world": "node ./src/maptiles-downloader.mjs --type=tianditu_img_w_world",
     "download_tianditu_img_w_china": "node ./src/maptiles-downloader.mjs --type=tianditu_img_w_china",
+    "download_tianditu_img_w_shaoguan": "node ./src/maptiles-downloader.mjs --type=tianditu_img_w_shaoguan",
+    "merge_tianditu_img_w_shaoguan": "node ./src/maptiles-to-tif.mjs --mbtiles=./output/tianditu_img_w_shaoguan_12.mbtiles --out=./output/tianditu_img_w_shaoguan.tif --zoom=12",
+    "download_merge_tianditu_img_w_shaoguan": "node ./src/maptiles-downloader.mjs --type=tianditu_img_w_shaoguan && node ./src/maptiles-to-tif.mjs --mbtiles=./output/tianditu_img_w_shaoguan_12.mbtiles --out=./output/tianditu_img_w_shaoguan.tif --zoom=12",
     "download_tianditu_img_w_province": "node ./src/maptiles-downloader.mjs --type=tianditu_img_w_province",
     "download_tianditu_ter_w_world": "node ./src/maptiles-downloader.mjs --type=tianditu_ter_w_world",
     "download_tianditu_ter_w_china": "node ./src/maptiles-downloader.mjs --type=tianditu_ter_w_china",
@@ -40,11 +47,13 @@
   "description": "",
   "dependencies": {
     "better-sqlite3": "^12.5.0",
+    "jpeg-js": "^0.4.4",
     "node-fetch": "^3.3.2",
     "pngjs": "^7.0.0"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^6.7.3",
+    "@types/node": "^26.3.0",
     "eslint": "^9.39.1",
     "eslint-plugin-format": "^1.1.0"
   }
