@@ -1,3 +1,4 @@
+import path from 'node:path'
 import process from 'node:process'
 import Downloader from './core/Downloader.mjs'
 import { amazonawsTerrariumPolicyChina, amazonawsTerrariumPolicyWorld } from './policy/amazonaws.mjs'
@@ -13,9 +14,21 @@ function parseArgs() {
   const params = {}
 
   for (let i = 0; i < args.length; i++) {
-    if (args[i].startsWith('--')) {
-      const [key, value] = args[i].substring(2).split('=')
-      params[key] = value || true // 如果没有值，设为 true
+    if (!args[i].startsWith('--'))
+      continue
+    const eq = args[i].indexOf('=')
+    const key = args[i].substring(2, eq >= 0 ? eq : undefined)
+    if (eq >= 0) {
+      // --key=value
+      params[key] = args[i].substring(eq + 1)
+    }
+    else if (args[i + 1] && !args[i + 1].startsWith('--')) {
+      // --key value
+      params[key] = args[++i]
+    }
+    else {
+      // 布尔开关
+      params[key] = true
     }
   }
 
@@ -24,7 +37,7 @@ function parseArgs() {
 
 const policys = []
 
-const args = parseArgs()
+const args = /** @type {Record<string, string | boolean>} */ (parseArgs())
 console.log('Type:', args.type) // --type=msn_street → "msn_street"
 
 switch (args.type) {
@@ -166,6 +179,130 @@ switch (args.type) {
     ])
     break
   }
+}
+
+/* ===================== 区域 / 层级覆盖参数 ===================== */
+// --bbox minLon,minLat,maxLon,maxLat ：将选定的 type 限定到指定范围
+// --min-z / --max-z ：限定层级（配合 --bbox 时直接合成该层级区间）
+// --out ：指定输出 mbtiles（默认自动重命名，避免覆盖预设输出）
+const overrideBBox = typeof args.bbox === 'string' ? args.bbox.split(',').map(Number) : null
+const overrideMinZ = typeof args['min-z'] === 'string' ? Number.parseInt(args['min-z'], 10) : null
+const overrideMaxZ = typeof args['max-z'] === 'string' ? Number.parseInt(args['max-z'], 10) : null
+const overrideOut = typeof args.out === 'string' ? args.out : null
+
+if (overrideBBox && (overrideBBox.length !== 4 || overrideBBox.some(n => !Number.isFinite(n)))) {
+  console.error('❌ --bbox 格式错误，应为: minLon,minLat,maxLon,maxLat')
+  process.exit(1)
+}
+if ((overrideMinZ != null && !Number.isInteger(overrideMinZ)) || (overrideMaxZ != null && !Number.isInteger(overrideMaxZ))) {
+  console.error('❌ --min-z / --max-z 需为整数')
+  process.exit(1)
+}
+if (overrideMinZ != null && overrideMaxZ != null && overrideMinZ > overrideMaxZ) {
+  console.error('❌ --min-z 不能大于 --max-z')
+  process.exit(1)
+}
+
+/**
+ * 应用区域/层级覆盖到策略（--bbox / --min-z / --max-z / --out）
+ * @param {typeof import('./policy/amazonaws.mjs').amazonawsTerrariumPolicyWorld} policy
+ */
+function applyRegionOverrides(policy) {
+  const active = overrideBBox || overrideMinZ != null || overrideMaxZ != null || overrideOut
+  if (!active)
+    return
+
+  const origLevels = policy.levels
+  /** @type {Array<{ z: number, bbox?: number[] }>} */
+  let levels
+  if (overrideBBox) {
+    const minZ = overrideMinZ ?? Math.min(...origLevels.map(l => l.z))
+    const maxZ = overrideMaxZ ?? Math.max(...origLevels.map(l => l.z))
+    levels = Array.from({ length: maxZ - minZ + 1 }, (_, i) => ({ z: minZ + i, bbox: overrideBBox }))
+  }
+  else {
+    levels = origLevels.filter(l =>
+      (overrideMinZ == null || l.z >= overrideMinZ)
+      && (overrideMaxZ == null || l.z <= overrideMaxZ)
+    )
+  }
+  if (levels.length === 0) {
+    console.error('❌ 覆盖参数后没有有效层级')
+    process.exit(1)
+  }
+  policy.levels = levels
+
+  const zoomList = levels.map(l => l.z)
+  const minzoom = Math.min(...zoomList)
+  const maxzoom = Math.max(...zoomList)
+  const bboxTag = overrideBBox ? `_${overrideBBox.join('_')}` : ''
+  const tag = `_r${minzoom}-${maxzoom}${bboxTag}`
+
+  // 输出文件（--out 优先，否则自动重命名避免覆盖预设）
+  if (overrideOut) {
+    const p = path.parse(overrideOut)
+    policy.downloaderOptions.mbtilesFile = overrideOut
+    policy.downloaderOptions.progressFile = path.join(p.dir, `${p.name}.progress.json`)
+  }
+  else {
+    const mb = policy.downloaderOptions.mbtilesFile
+    const mbExt = path.extname(mb)
+    policy.downloaderOptions.mbtilesFile = path.join(path.dirname(mb), `${path.basename(mb, mbExt)}${tag}${mbExt}`)
+    const pf = policy.downloaderOptions.progressFile
+    const pfExt = path.extname(pf ?? '')
+    const pfBase = pf ? path.basename(pf, pfExt) : path.basename(policy.downloaderOptions.mbtilesFile, mbExt)
+    policy.downloaderOptions.progressFile = path.join(path.dirname(pf ?? './output'), `${pfBase}${tag}${pfExt}`)
+  }
+
+  // metadata 动态化（先写原始字段，再覆盖区域信息）
+  const bboxes = levels.map(l => l.bbox).filter(Boolean)
+  const bounds = overrideBBox ?? (bboxes.length
+    ? [
+        Math.min(...bboxes.map(b => b[0])),
+        Math.min(...bboxes.map(b => b[1])),
+        Math.max(...bboxes.map(b => b[2])),
+        Math.max(...bboxes.map(b => b[3]))
+      ]
+    : [-180, -85.0511, 180, 85.0511])
+  const center = [
+    ((bounds[0] + bounds[2]) / 2).toFixed(6),
+    ((bounds[1] + bounds[3]) / 2).toFixed(6),
+    Math.floor((minzoom + maxzoom) / 2)
+  ].join(',')
+
+  const origGenerate = policy.generateMetadata.bind(policy)
+
+  /**
+   * @param {import('better-sqlite3').Database} db
+   */
+  function writeRegionMetadata(db) {
+    origGenerate(db)
+    const rows = /** @type {Array<{ name: string, value: string }>} */ (
+      db.prepare('SELECT name, value FROM metadata').all()
+    )
+    /** @type {Record<string, string>} */
+    const prev = {}
+    for (const r of rows) prev[r.name] = r.value
+    db.exec('DELETE FROM metadata;')
+    const meta = {
+      name: `${policy.name ?? 'Tiles'} (region ${minzoom}-${maxzoom})`,
+      format: prev.format ?? 'png',
+      minzoom: String(minzoom),
+      maxzoom: String(maxzoom),
+      bounds: bounds.join(','),
+      center,
+      type: prev.type ?? 'baselayer',
+      attribution: prev.attribution ?? ''
+    }
+    const stmt = db.prepare('INSERT INTO metadata (name, value) VALUES (?, ?)')
+    for (const [k, v] of Object.entries(meta)) stmt.run(k, v)
+  }
+
+  policy.generateMetadata = writeRegionMetadata
+}
+
+for (const p of policys) {
+  applyRegionOverrides(p)
 }
 
 async function run(policys) {

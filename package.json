@@ -26,6 +26,11 @@
     "download_tianditu_cia_w_pakistan": "node ./src/maptiles-downloader.mjs --type=tianditu_cia_w_pakistan",
     "download_amazonaws_ter_world": "node ./src/maptiles-downloader.mjs --type=amazonaws_ter_world",
     "download_amazonaws_ter_china": "node ./src/maptiles-downloader.mjs --type=amazonaws_ter_china",
+    "download_amazonaws_ter_region_13_15": "node ./src/maptiles-downloader.mjs --type=amazonaws_ter_world --bbox 84.2,28.0,86.4,29.6 --min-z 13 --max-z 15 --out ./output/amazonaws_ter_region_13_15.mbtiles",
+    "download_amazonaws_ter_region_0_15": "node ./src/maptiles-downloader.mjs --type=amazonaws_ter_world --bbox 84.2,28.0,86.4,29.6 --min-z 0 --max-z 15 --out ./output/amazonaws_ter_region_0_15.mbtiles",
+    "extract-tiles": "node ./scripts/extract-tiles.mjs",
+    "extract-tiles:region-mbtiles": "node ./scripts/extract-tiles.mjs --bbox 84.2,28.0,86.4,29.6 --mbtiles ./output/region.mbtiles",
+    "extract-tiles:region-png": "node ./scripts/extract-tiles.mjs --bbox 84.2,28.0,86.4,29.6 --min-z 0 --max-z 12 --dir ./output/region_tiles",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "test": "echo \"Error: no test specified\" && exit 1"
